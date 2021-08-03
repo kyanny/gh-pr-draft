@@ -41,4 +41,4 @@ MUTATION
   gq https://api.github.com/graphql -H "Authorization: token $GITHUB_TOKEN" --queryFile=/tmp/mutation.txt
 }
 
-gh-pr-draft
+#gh-pr-draft
