@@ -3,7 +3,8 @@ set -e
 
 number=$1
 if [[ -z $number ]]; then
-  number=$(gh pr view | grep number | awk '{print $NF}')
+  # Prefer -t (--template) over -q (--jq) because -q prints additional newline
+  number=$(gh pr view --json number -t '{{.number}}')
 fi
 
 QUERY='
