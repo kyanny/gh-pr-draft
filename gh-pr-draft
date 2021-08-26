@@ -33,3 +33,35 @@ echo "Hello gh-pr-draft!"
 #   {{- end -}}
 # '
 # exec gh api graphql -f query="${QUERY}" --paginate --template="${TEMPLATE}"
+
+number=$1
+if [[ -z $number ]]; then
+  number=$(gh pr view | grep number | awk '{print $NF}')
+fi
+
+QUERY='
+  query($owner: String!, $name: String!, $number: Int!) {
+    repository(owner: $owner, name: $name) {
+      pullRequest(number: $number) {
+        id
+        number
+        isDraft
+      }
+    }
+  }
+'
+id=$(gh api graphql -F owner='{owner}' -F name='{repo}' -F number="${number}" -f query="${QUERY}" -q '.data.repository.pullRequest.id')
+MUTATION='
+  mutation($id: String!) {
+    convertPullRequestToDraft(input: { pullRequestId: $id }) {
+      pullRequest {
+        id
+        number
+        isDraft
+      }
+    }
+  }
+'
+gh api graphql -F id="${id}" -f query="${MUTATION}" >/dev/null
+
+printf "\033[32m✓\033[0m Pull request #${number} is marked as \"draft\"\n"
