@@ -1,24 +1,24 @@
 #!/bin/bash
 set -e
 
-number=$1
-if [[ -z $number ]]; then
-  # Prefer -t (--template) over -q (--jq) because -q prints additional newline
-  number=$(gh pr view --json number -t '{{.number}}')
-fi
-
-QUERY='
-  query($owner: String!, $name: String!, $number: Int!) {
-    repository(owner: $owner, name: $name) {
-      pullRequest(number: $number) {
-        id
-        number
-        isDraft
+if [[ $# -eq 0 ]]; then
+  id=$(gh pr view --json id -q '.id')
+else
+  number=$1
+  QUERY='
+    query($owner: String!, $name: String!, $number: Int!) {
+      repository(owner: $owner, name: $name) {
+        pullRequest(number: $number) {
+          id
+          number
+          isDraft
+        }
       }
     }
-  }
-'
-id=$(gh api graphql -F owner='{owner}' -F name='{repo}' -F number="${number}" -f query="${QUERY}" -q '.data.repository.pullRequest.id')
+  '
+  id=$(gh api graphql -F owner='{owner}' -F name='{repo}' -F number="${number}" -f query="${QUERY}" -q '.data.repository.pullRequest.id')
+fi
+
 MUTATION='
   mutation($id: String!) {
     convertPullRequestToDraft(input: { pullRequestId: $id }) {
