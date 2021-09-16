@@ -3,6 +3,7 @@ set -e
 
 if [[ $# -eq 0 ]]; then
   id=$(gh pr view --json id -q '.id')
+  number=$(gh pr view --json number -q '.number')
 else
   number=$1
   QUERY='
