@@ -21,7 +21,7 @@ else
 fi
 
 MUTATION='
-  mutation($id: String!) {
+  mutation($id: ID!) {
     convertPullRequestToDraft(input: { pullRequestId: $id }) {
       pullRequest {
         id
